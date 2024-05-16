@@ -77,9 +77,9 @@ public class ApartamentoController {
 		grid.setVgap(10);
 		grid.setPadding(new Insets(20, 150, 10, 10));
 
-		TextField nombreField = new TextField();
+		TextField nombreField = new TextField(null);
 		nombreField.setPromptText("Nombre");
-		TextField direccionField = new TextField();
+		TextField direccionField = new TextField(null);
 		direccionField.setPromptText("Direccion");
 
 		Spinner<Integer> numHabitacionesSpinner = new Spinner<>(1, Integer.MAX_VALUE, 1);
