@@ -92,7 +92,7 @@ public class IngresoDB {
 
     public void saveIngreso(Ingreso ingreso) {
         String query = "INSERT INTO ingresos (tipoFactura, fechaEntrada, fechaSalida, numeroNoches, numeroPersonas, idTarifa, descuento, totalIVA, totalFactura, observaciones, idApartamento, nifCliente, idIntermediario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
+        
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setString(1, ingreso.getTipoFactura());

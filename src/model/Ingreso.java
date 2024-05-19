@@ -41,7 +41,7 @@ public class Ingreso {
 	
 	public Ingreso(String tipoFactura, String fechaEntrada, String fechaSalida, int numeroNoches,
 			int numeroPersonas, Integer idTarifa, double descuento, double totalIVA, double totalFactura,
-			String observaciones, String nifCliente, Integer idIntermediario) {
+			String observaciones, int idApartamento, String nifCliente, Integer idIntermediario) {
 		this.idIngreso = new SimpleIntegerProperty();
 		this.tipoFactura = new SimpleStringProperty(tipoFactura);
 		this.fechaEntrada = new SimpleStringProperty(fechaEntrada);
@@ -53,7 +53,7 @@ public class Ingreso {
 		this.totalIVA = new SimpleDoubleProperty(totalIVA);
 		this.totalFactura = new SimpleDoubleProperty(totalFactura);
 		this.observaciones = new SimpleStringProperty(observaciones);
-		this.idApartamento = new SimpleIntegerProperty();
+		this.idApartamento = new SimpleIntegerProperty(idApartamento);
 		this.nifCliente = new SimpleStringProperty(nifCliente);
 		this.idIntermediario = new SimpleIntegerProperty(idIntermediario);
 	}

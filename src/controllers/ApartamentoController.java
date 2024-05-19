@@ -10,6 +10,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -17,7 +18,6 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import model.Apartamento;
@@ -46,13 +46,16 @@ public class ApartamentoController {
 	}
 
 	private void initTableColumns() {
-//    	idApartamentoColumn.setCellValueFactory(cellData -> cellData.getValue().idApartamentoProperty().asObject());
 		nombreApartamentoColumn.setCellValueFactory(cellData -> cellData.getValue().nombreProperty());
-		direccionApartamentoColumn.setCellValueFactory(cellData -> cellData.getValue().direccionProperty());
+	    direccionApartamentoColumn.setCellValueFactory(cellData -> cellData.getValue().direccionProperty());
 		numHabitacionesColumn.setCellValueFactory(cellData -> cellData.getValue().numHabitacionesProperty().asObject());
 		capacidadMaxColumn.setCellValueFactory(cellData -> cellData.getValue().capacidadMaxProperty().asObject());
+		
+		// Configuración de las celdas para mostrar "null"
+        nombreApartamentoColumn.setCellFactory(TableCellFactory.createCellFactory());
+        direccionApartamentoColumn.setCellFactory(TableCellFactory.createCellFactory());
 	}
-
+	
 	private void loadApartamentos() {
 		ApartamentoDB apartamentoDB = new ApartamentoDB();
 		apartamentoTableView.getItems().addAll(apartamentoDB.getApartamentosToUsuario(Sesion.getUsuario()));

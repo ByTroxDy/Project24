@@ -34,7 +34,7 @@ public class Gasto {
 	}
 	
 	public Gasto(String tipoGasto, String concepto, String fecha, String nifProveedor, double iva,
-			double totalIVA, double totalGasto, String pagado, String nifCliente) {
+			double totalIVA, double totalGasto, String pagado, int idApartamento, String nifCliente) {
 		this.idGasto = new SimpleIntegerProperty();
 		this.tipoGasto = new SimpleStringProperty(tipoGasto);
 		this.concepto = new SimpleStringProperty(concepto);
@@ -44,7 +44,7 @@ public class Gasto {
 		this.totalIVA = new SimpleDoubleProperty(totalIVA);
 		this.totalGasto = new SimpleDoubleProperty(totalGasto);
 		this.pagado = new SimpleStringProperty(pagado);
-		this.idApartamento = new SimpleIntegerProperty();
+		this.idApartamento = new SimpleIntegerProperty(idApartamento);
 		this.nifCliente = new SimpleStringProperty(nifCliente);
 		
 	}

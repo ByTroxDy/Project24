@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.scene.control.Alert;
 import model.Gasto;
 
 public class GastoDB {
@@ -106,7 +107,7 @@ public class GastoDB {
     
     public void updateGasto(Gasto gasto) {
         String query = "UPDATE gastos SET tipoGasto = ?, concepto = ?, fecha = ?, nifProveedor = ?, iva = ?, totalIVA = ?, totalGasto = ?, pagado = ?, idApartamento = ?, nifCliente = ? WHERE id = ?";
-
+        
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, gasto.getTipoGasto());
             pstmt.setString(2, gasto.getConcepto());
@@ -120,7 +121,20 @@ public class GastoDB {
             pstmt.setString(10, gasto.getNifCliente());
             pstmt.setInt(11, gasto.getIdGasto());
 
-            pstmt.executeUpdate();
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected == 1) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Información");
+                alert.setHeaderText(null);
+                alert.setContentText("Gasto modificado correctamente.");
+                alert.showAndWait();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("No se pudo modificar el gasto.");
+                alert.showAndWait();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -145,6 +159,17 @@ public class GastoDB {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    
+    public List<String> obtenerNifClientesDisponibles() throws SQLException {
+        List<String> nifClientes = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement("SELECT nif FROM clientes")) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                nifClientes.add(rs.getString("nif"));
+            }
+        }
+        return nifClientes;
     }
     
 }
