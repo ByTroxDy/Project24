@@ -60,7 +60,10 @@ public class LoginController implements Initializable {
             	Sesion.setUsuario(username);
             	try {
             		MenuPanelController menuPanel = new MenuPanelController();
-                	menuPanel.cargarInterfaz("/interfaz/Apartamentos.fxml", "GEAT - MENU PANEL");
+                	menuPanel.cargarInterfaz("/interfaz/MenuPanel.fxml", "GEAT - MENU PANEL");
+                	
+            		ApartamentoController apartamento = new ApartamentoController();
+            		apartamento.cargarInterfaz("/interfaz/Apartamentos.fxml", "GEAT - MIS APARTAMENTOS");
 	                
 	                // Cerrar la ventana actual (ventana de inicio de sesión)
 	                Stage stage = (Stage) loginButton.getScene().getWindow();

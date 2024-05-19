@@ -49,7 +49,7 @@ public class OperacionesDB {
         double totalIVAIngresos = 0.0;
         double totalIVAGastos = 0.0;
         
-        String sqlIngresos = "SELECT SUM(totalIva) FROM ingresos WHERE fechaEntrada BETWEEN ? AND ?";
+        String sqlIngresos = "SELECT SUM(totalIVA) FROM ingresos WHERE fechaEntrada BETWEEN ? AND ?";
         try (PreparedStatement statement = conn.prepareStatement(sqlIngresos)) {
             statement.setDate(1, java.sql.Date.valueOf(primerDiaTrimestre));
             statement.setDate(2, java.sql.Date.valueOf(ultimoDiaTrimestre));
@@ -59,7 +59,7 @@ public class OperacionesDB {
             }
         }
 
-        String sqlGastos = "SELECT SUM(totalIva) FROM gastos WHERE fecha BETWEEN ? AND ?";
+        String sqlGastos = "SELECT SUM(totalIVA) FROM gastos WHERE fecha BETWEEN ? AND ?";
         try (PreparedStatement statement = conn.prepareStatement(sqlGastos)) {
             statement.setDate(1, java.sql.Date.valueOf(primerDiaTrimestre));
             statement.setDate(2, java.sql.Date.valueOf(ultimoDiaTrimestre));
