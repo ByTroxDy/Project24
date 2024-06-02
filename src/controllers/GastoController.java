@@ -1,5 +1,7 @@
 package controllers;
 
+import javafx.collections.FXCollections;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
@@ -18,11 +20,13 @@ import javafx.stage.Stage;
 import model.Gasto;
 import model.Sesion;
 import database.GastoDB;
+import database.OperacionesDB;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class GastoController {
     @FXML
@@ -47,8 +51,16 @@ public class GastoController {
     private TableColumn<Gasto, String> pagadoColumn;
     @FXML
     private TableColumn<Gasto, String> nifClienteColumn;
+    @FXML
+    private Label totalGastosLabel;
+    @FXML
+    private Label liquidacionIVALabel;
+    @FXML
+    private TextField searchField;
     
     private GastoDB gastoDB = new GastoDB();
+	private OperacionesDB operacionesDB = new OperacionesDB();
+    private FilteredList<Gasto> filteredGastos;
 
     @FXML
     private void initialize() {
@@ -80,11 +92,33 @@ public class GastoController {
         totalGastoColumn.setCellFactory(TableCellFactory.createCellFactory());
         pagadoColumn.setCellFactory(TableCellFactory.createCellFactory());
         nifClienteColumn.setCellFactory(TableCellFactory.createCellFactory());
+        
+        // Configurar el campo de búsqueda
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+        	filteredGastos.setPredicate(createPredicate(newValue));
+        	gastoTableView.setItems(filteredGastos);
+            updateTotalGastos();
+            updateLiquidacionIVA();
+        });
     }
 
     private void loadGastos() {
     	GastoDB gastoDB = new GastoDB();
-    	gastoTableView.getItems().addAll(gastoDB.getGastosToApartameto(Sesion.getIdApartamento()));
+    	filteredGastos = new FilteredList<>(FXCollections.observableArrayList(gastoDB.getGastosToApartameto(Sesion.getIdApartamento())), p -> true);
+		gastoTableView.setItems(filteredGastos);
+        updateTotalGastos();
+        updateLiquidacionIVA();
+    }
+    
+    private Predicate<Gasto> createPredicate(String searchText) {
+        return gasto -> {
+            if (searchText == null || searchText.isEmpty()) return true;
+            return searchGasto(gasto, searchText);
+        };
+    }
+
+    private boolean searchGasto(Gasto gasto, String searchText) {
+        return (gasto.getNifCliente().toLowerCase().startsWith(searchText.toLowerCase()));
     }
 
     @FXML
@@ -131,9 +165,9 @@ public class GastoController {
 				new TextFormatter<>(change -> (change.getControlNewText().matches("\\d*")) ? change : null));
         
         ComboBox<String> pagadoComboBox = new ComboBox<>();
-		tipoGastoComboBox.getItems().add("Si");
-		tipoGastoComboBox.getItems().add("No");
-		tipoGastoComboBox.setPromptText("Pagado");
+        pagadoComboBox.getItems().add("Si");
+        pagadoComboBox.getItems().add("No");
+        pagadoComboBox.setPromptText("Pagado");
         
         ComboBox<String> nifClienteComboBox = new ComboBox<>();
 		// Llenar el ComboBox con los NIF de clientes disponibles
@@ -182,9 +216,8 @@ public class GastoController {
         result.ifPresent(gasto -> {
         	GastoDB gastoDB = new GastoDB();
 			gastoDB.saveGasto(gasto);
+	    	refreshTable();
         });
-        
-    	refreshTable();
     }
     
     @FXML
@@ -231,9 +264,9 @@ public class GastoController {
         TextField totalGastoField = new TextField(String.valueOf(selectedGasto.getTotalGasto()));
         
         ComboBox<String> pagadoComboBox = new ComboBox<>();
-        pagadoComboBox.getItems().add("factura");
-        pagadoComboBox.getItems().add("interno");
-		tipoGastoComboBox.setPromptText("Pagado");
+        pagadoComboBox.getItems().add("Si");
+        pagadoComboBox.getItems().add("No");
+        pagadoComboBox.setPromptText("Pagado");
         pagadoComboBox.setValue(selectedGasto.getPagado());
         
         ComboBox<String> nifClienteComboBox = new ComboBox<>();
@@ -284,9 +317,8 @@ public class GastoController {
         result.ifPresent(gasto -> {
         	GastoDB gastoDB = new GastoDB();
 			gastoDB.updateGasto(gasto);
+	    	refreshTable();
         });
-            
-        refreshTable();
     }
 
     @FXML
@@ -304,9 +336,8 @@ public class GastoController {
             if (result.isPresent() && result.get() == ButtonType.OK) {
             	GastoDB gastoDB = new GastoDB();
 				gastoDB.deleteGasto(selectedGasto);
+		    	refreshTable();
             }
-            
-        	refreshTable();
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Eliminar Gasto");
@@ -320,10 +351,35 @@ public class GastoController {
     	gastoTableView.getItems().clear();
         loadGastos();
     }
+    
+    private void updateTotalGastos() {
+    	double totalGastos = 0.0;
+		try {
+			totalGastos = operacionesDB.obtenerTotalGastos();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		totalGastosLabel.setText(String.format("%.2f", totalGastos) + "€");
+    }
+    
+    private void updateLiquidacionIVA() {
+    	double liquidacionIVA = 0.0;
+		try {
+			liquidacionIVA = operacionesDB.calcularLiquidacionIVA();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+        liquidacionIVALabel.setText(String.format("%.2f", liquidacionIVA) + "€");
+    }
 
     @FXML
     private void cerrar() {
     	Stage stage = (Stage) gastoTableView.getScene().getWindow();
         stage.close();
     }
+    
+	@FXML
+	private void salir() {
+		System.exit(0);
+	}
 }

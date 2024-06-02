@@ -4,7 +4,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
+import javafx.collections.FXCollections;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
@@ -15,6 +18,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.GridPane;
@@ -22,6 +26,7 @@ import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.stage.Stage;
 
 import database.IngresoDB;
+import database.OperacionesDB;
 import model.Ingreso;
 import model.Sesion;
 
@@ -54,8 +59,16 @@ public class IngresoController {
 	private TableColumn<Ingreso, String> nifClienteColumn;
 	@FXML
 	private TableColumn<Ingreso, Integer> idIntermediario;
-
+    @FXML
+    private Label totalIngresosLabel;
+    @FXML
+    private Label liquidacionIVALabel;
+    @FXML
+    private TextField searchField;
+    
 	private IngresoDB ingresoDB = new IngresoDB();
+	private OperacionesDB operacionesDB = new OperacionesDB();
+	private FilteredList<Ingreso> filteredIngresos;
 
 	@FXML
 	private void initialize() {
@@ -93,12 +106,33 @@ public class IngresoController {
 		observacionesColumn.setCellFactory(TableCellFactory.createCellFactory());
 		nifClienteColumn.setCellFactory(TableCellFactory.createCellFactory());
 		idIntermediario.setCellFactory(TableCellFactory.createCellFactory());
+		
+        // Configurar el campo de búsqueda
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+        	filteredIngresos.setPredicate(createPredicate(newValue));
+            updateTotalIngresos();
+    		updateLiquidacionIVA();
+        });
 	}
 
 	private void loadIngresos() {
 		IngresoDB ingresoDB = new IngresoDB();
-		ingresoTableView.getItems().addAll(ingresoDB.getIngresosToApartamento(Sesion.getIdApartamento()));
+		filteredIngresos = new FilteredList<>(FXCollections.observableArrayList(ingresoDB.getIngresosToApartamento(Sesion.getIdApartamento())), p -> true);
+		ingresoTableView.setItems(filteredIngresos);
+        updateTotalIngresos();
+		updateLiquidacionIVA();
 	}
+	
+    private Predicate<Ingreso> createPredicate(String searchText) {
+        return ingreso -> {
+            if (searchText == null || searchText.isEmpty()) return true;
+            return searchIngreso(ingreso, searchText);
+        };
+    }
+
+    private boolean searchIngreso(Ingreso ingreso, String searchText) {
+        return (ingreso.getNifCliente().toLowerCase().startsWith(searchText.toLowerCase()));
+    }
 
 	@FXML
 	private void agregarIngreso() throws SQLException {
@@ -158,9 +192,6 @@ public class IngresoController {
 		totalFacturaField.setTextFormatter(new TextFormatter<>(
 				change -> (change.getControlNewText().matches("-?\\d*\\.?\\d{0,2}")) ? change : null));
 
-		TextField observacionesField = new TextField(null);
-		observacionesField.setPromptText("Observaciones");
-
 		ComboBox<String> nifClienteComboBox = new ComboBox<>();
 		// Llenar el ComboBox con los NIF de clientes disponibles
 		List<String> nifClienteList = ingresoDB.obtenerNifClientesDisponibles();
@@ -172,6 +203,9 @@ public class IngresoController {
 		List<Integer> idIntermediarioList = ingresoDB.obtenerIdIntermediariosDisponibles();
 		idIntermediarioComboBox.getItems().addAll(idIntermediarioList);
 		idIntermediarioComboBox.setPromptText("ID Intermediario");
+		
+		TextArea observacionesField = new TextArea(null);
+		observacionesField.setPromptText("Observaciones");
 
 		// Añadir campos al grid
 		grid.add(new Label("Tipo de Factura:"), 0, 0);
@@ -192,12 +226,12 @@ public class IngresoController {
 		grid.add(totalIVAField, 1, 7);
 		grid.add(new Label("Total Factura:"), 0, 8);
 		grid.add(totalFacturaField, 1, 8);
-		grid.add(new Label("Observaciones:"), 0, 9);
-		grid.add(observacionesField, 1, 9);
-		grid.add(new Label("NIF Cliente:"), 0, 10);
-		grid.add(nifClienteComboBox, 1, 10);
-		grid.add(new Label("ID Intermediario:"), 0, 11);
-		grid.add(idIntermediarioComboBox, 1, 11);
+		grid.add(new Label("NIF Cliente:"), 0, 9);
+		grid.add(nifClienteComboBox, 1, 9);
+		grid.add(new Label("ID Intermediario:"), 0, 10);
+		grid.add(idIntermediarioComboBox, 1, 10);
+		grid.add(new Label("Observaciones:"), 0, 11);
+		grid.add(observacionesField, 1, 11);
 
 		dialog.getDialogPane().setContent(grid);
 
@@ -225,10 +259,8 @@ public class IngresoController {
 		result.ifPresent(ingreso -> {
 			IngresoDB ingresoDB = new IngresoDB();
 			ingresoDB.saveIngreso(ingreso);
+	        refreshTable();
 		});
-
-		// Recargar la tabla
-		refreshTable();
 	}
 
 	@FXML
@@ -280,7 +312,6 @@ public class IngresoController {
 		TextField descuentoField = new TextField(String.valueOf(selectedIngreso.getDescuento()));
 		TextField totalIVAField = new TextField(String.valueOf(selectedIngreso.getTotalIVA()));
 		TextField totalFacturaField = new TextField(String.valueOf(selectedIngreso.getTotalFactura()));
-		TextField observacionesField = new TextField(selectedIngreso.getObservaciones());
 
 		ComboBox<String> nifClienteComboBox = new ComboBox<>();
 		// Llenar el ComboBox con los NIF de clientes disponibles
@@ -293,6 +324,8 @@ public class IngresoController {
 		List<Integer> idIntermediarioList = ingresoDB.obtenerIdIntermediariosDisponibles();
 		idIntermediarioComboBox.getItems().addAll(idIntermediarioList);
 		idIntermediarioComboBox.setValue(selectedIngreso.getIdIntermediario());
+		
+		TextArea observacionesField = new TextArea(selectedIngreso.getObservaciones());
 
 		grid.add(new Label("Tipo de Factura:"), 0, 0);
 		grid.add(tipoFacturaComboBox, 1, 0);
@@ -312,12 +345,12 @@ public class IngresoController {
 		grid.add(totalIVAField, 1, 7);
 		grid.add(new Label("Total Factura:"), 0, 8);
 		grid.add(totalFacturaField, 1, 8);
-		grid.add(new Label("Observaciones:"), 0, 9);
-		grid.add(observacionesField, 1, 9);
-		grid.add(new Label("NIF Cliente:"), 0, 10);
-		grid.add(nifClienteComboBox, 1, 10);
-		grid.add(new Label("ID Intermediario:"), 0, 11);
-		grid.add(idIntermediarioComboBox, 1, 11);
+		grid.add(new Label("NIF Cliente:"), 0, 9);
+		grid.add(nifClienteComboBox, 1, 9);
+		grid.add(new Label("ID Intermediario:"), 0, 10);
+		grid.add(idIntermediarioComboBox, 1, 10);
+		grid.add(new Label("Observaciones:"), 0, 11);
+		grid.add(observacionesField, 1, 11);
 
 		dialog.getDialogPane().setContent(grid);
 
@@ -342,9 +375,8 @@ public class IngresoController {
 		result.ifPresent(ingreso -> {
 			IngresoDB ingresoDB = new IngresoDB();
 			ingresoDB.updateIngreso(ingreso);
+	        refreshTable();
 		});
-
-		refreshTable();
 	}
 
 	@FXML
@@ -369,15 +401,35 @@ public class IngresoController {
 		if (result.isPresent() && result.get() == ButtonType.OK) {
 			IngresoDB ingresoDB = new IngresoDB();
 			ingresoDB.deleteIngreso(selectedIngreso.getIdIngreso());
+	        refreshTable();
 		}
 
-		refreshTable();
 	}
 
 	private void refreshTable() {
 		ingresoTableView.getItems().clear();
 		loadIngresos();
 	}
+	
+    private void updateTotalIngresos() {
+    	double totalIngresos = 0.0;
+		try {
+			totalIngresos = operacionesDB.obtenerTotalIngresos();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	totalIngresosLabel.setText(String.format("%.2f", totalIngresos) + "€");
+    }
+    
+    private void updateLiquidacionIVA() {
+    	double liquidacionIVA = 0.0;
+		try {
+			liquidacionIVA = operacionesDB.calcularLiquidacionIVA();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+        liquidacionIVALabel.setText(String.format("%.2f", liquidacionIVA) + "€");
+    }
 
 	@FXML
 	private void cerrar() {

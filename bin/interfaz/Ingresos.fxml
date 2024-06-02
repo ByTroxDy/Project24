@@ -1,39 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="450.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.IngresoController">
+<AnchorPane prefHeight="560.0" prefWidth="900.0" style="-fx-background-color: #E8EEF7;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.IngresoController">
     <children>
-        <!-- TableView para mostrar los ingresos -->
-        <TableView fx:id="ingresoTableView" layoutX="34.0" layoutY="28.0" prefHeight="350.0" prefWidth="830.0" tableMenuButtonVisible="true">
-            <columns>
-<!--                 <TableColumn fx:id="idIngresoColumn" prefWidth="50.0" text="ID" /> -->
-                <TableColumn fx:id="tipoFacturaColumn" prefWidth="100.0" text="Tipo Factura" />
-                <TableColumn fx:id="fechaEntradaColumn" prefWidth="91.19994354248047" text="Fecha Entrada" />
-                <TableColumn fx:id="fechaSalidaColumn" prefWidth="78.4000244140625" text="Fecha Salida" />
-                <TableColumn fx:id="numeroNochesColumn" prefWidth="75.0" text="Num Noches" />
-                <TableColumn fx:id="numeroPersonasColumn" prefWidth="75.0" text="Num Personas" />
-                <TableColumn fx:id="descuentoColumn" prefWidth="75.0" text="Descuento" />
-                <TableColumn fx:id="totalIVAColumn" prefWidth="75.0" text="Total IVA" />
-                <TableColumn fx:id="totalFacturaColumn" prefWidth="100.0" text="Total Factura" />
-                <TableColumn fx:id="observacionesColumn" prefWidth="57.60003662109375" text="Observaciones" />
-                <TableColumn fx:id="nifClienteColumn" prefWidth="71.99993896484375" text="NIF Cliente" />
-                <TableColumn fx:id="idTarifaColumn" prefWidth="75.0" text="ID Tarifa" />
-                <TableColumn fx:id="idIntermediario" prefWidth="75.0" text="ID Intermediario" />
-            </columns>
-         <columnResizePolicy>
-            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-         </columnResizePolicy>
-        </TableView>
-
-        <!-- Botones para acciones -->
-        <Button layoutX="34.0" layoutY="392.0" mnemonicParsing="false" onAction="#agregarIngreso" prefHeight="25.0" prefWidth="106.0" text="Agregar" />
-        <Button layoutX="150.0" layoutY="392.0" mnemonicParsing="false" onAction="#modificarIngreso" prefHeight="25.0" prefWidth="106.0" text="Modificar" />
-        <Button layoutX="266.0" layoutY="392.0" mnemonicParsing="false" onAction="#eliminarIngreso" prefHeight="25.0" prefWidth="106.0" text="Eliminar" />
-        <Button layoutX="757.0" layoutY="392.0" mnemonicParsing="false" onAction="#cerrar" prefHeight="25.0" prefWidth="106.0" text="Cerrar" />
-      <Button layoutX="548.0" layoutY="392.0" mnemonicParsing="false" onAction="#salir" prefHeight="25.0" prefWidth="106.0" text="Salir" />
+        <VBox alignment="CENTER" layoutX="34.0" layoutY="28.0" spacing="20.0">
+            <children>
+	            <HBox alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="295.0" spacing="10.0">
+		            <children>
+		                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="22.0" prefWidth="520.0" text="LOS INGRESOS" textAlignment="CENTER">
+		                    <font>
+		                        <Font name="Arial Rounded MT Bold" size="18.0" />
+		                    </font>
+		                </Label>
+		                <TextField fx:id="searchField" prefHeight="25.0" prefWidth="300.0" promptText="Buscar..." />
+		            </children>
+		        </HBox>
+            <AnchorPane prefHeight="50.0" prefWidth="830.0">
+               <children>
+                  <Label layoutX="14.0" layoutY="7.0" prefHeight="17.0" prefWidth="100.0" text="Total de Ingresos: " />
+                  <Label fx:id="totalIngresosLabel" layoutX="122.0" layoutY="7.0" prefHeight="17.0" prefWidth="80.0" text="0.00" />
+                  <Label layoutX="15.0" layoutY="26.0" prefHeight="17.0" prefWidth="100.0" text="Liquidación IVA: " />
+                  <Label fx:id="liquidacionIVALabel" layoutX="122.0" layoutY="26.0" prefHeight="17.0" prefWidth="80.0" text="0.00" />
+               </children>
+            </AnchorPane>
+		        <TableView fx:id="ingresoTableView" prefHeight="350.0" prefWidth="830.0" tableMenuButtonVisible="true">
+		            <columns>
+                        <TableColumn fx:id="tipoFacturaColumn" prefWidth="100.0" text="Tipo Factura" />
+                        <TableColumn fx:id="fechaEntradaColumn" prefWidth="91.2" text="Fecha Entrada" />
+                        <TableColumn fx:id="fechaSalidaColumn" prefWidth="78.4" text="Fecha Salida" />
+                        <TableColumn fx:id="numeroNochesColumn" prefWidth="75.0" text="Num Noches" />
+                        <TableColumn fx:id="numeroPersonasColumn" prefWidth="75.0" text="Num Personas" />
+                        <TableColumn fx:id="descuentoColumn" prefWidth="75.0" text="Descuento" />
+                        <TableColumn fx:id="totalIVAColumn" prefWidth="75.0" text="Total IVA" />
+                        <TableColumn fx:id="totalFacturaColumn" prefWidth="100.0" text="Total Factura" />
+                        <TableColumn fx:id="observacionesColumn" prefWidth="57.6" text="Observaciones" />
+                        <TableColumn fx:id="nifClienteColumn" prefWidth="72.0" text="NIF Cliente" />
+                        <TableColumn fx:id="idTarifaColumn" prefWidth="75.0" text="ID Tarifa" />
+                        <TableColumn fx:id="idIntermediario" prefWidth="75.0" text="ID Intermediario" />
+                    </columns>
+		            <columnResizePolicy>
+		                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+		            </columnResizePolicy>
+		        </TableView>
+		        <HBox alignment="CENTER" spacing="10.0">
+		            <children>
+		                <Button mnemonicParsing="false" onAction="#agregarIngreso" prefHeight="25.0" prefWidth="80.0" style="-fx-background-color: #E0E0E0; -fx-border-radius: 5; -fx-background-radius: 5;" text="Agregar" />
+		                <Button mnemonicParsing="false" onAction="#modificarIngreso" prefHeight="25.0" prefWidth="80.0" style="-fx-background-color: #E0E0E0; -fx-border-radius: 5; -fx-background-radius: 5;" text="Modificar" />
+		                <Button mnemonicParsing="false" onAction="#eliminarIngreso" prefHeight="25.0" prefWidth="80.0" style="-fx-background-color: #E0E0E0; -fx-border-radius: 5; -fx-background-radius: 5;" text="Eliminar" />
+		                <Separator prefHeight="0.0" prefWidth="180.0" />
+		                <Button mnemonicParsing="false" onAction="#cerrar" prefHeight="25.0" prefWidth="80.0" style="-fx-background-color: #E0E0E0; -fx-border-radius: 5; -fx-background-radius: 5;" text="Cerrar" />
+		                <Button mnemonicParsing="false" onAction="#salir" prefHeight="25.0" prefWidth="80.0" style="-fx-background-color: #E0E0E0; -fx-border-radius: 5; -fx-background-radius: 5;" text="Salir" />
+		            </children>
+		        </HBox>
+            </children>
+        </VBox>
     </children>
 </AnchorPane>

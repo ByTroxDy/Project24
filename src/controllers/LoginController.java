@@ -19,10 +19,9 @@ import javafx.stage.Stage;
 import model.Sesion;
 
 public class LoginController implements Initializable {
-
-    @FXML
+	
+	@FXML
     private TextField usernameField;
-
     @FXML
     private PasswordField passwordField;
 
@@ -43,10 +42,8 @@ public class LoginController implements Initializable {
     }
 
     private void login() {
-//        String username = usernameField.getText();
-//        String password = passwordField.getText();
-        String username = "1";
-        String password = "1";
+        String username = usernameField.getText();
+        String password = passwordField.getText();
 
         // Consulta SQL para buscar el usuario en la base de datos
         String query = "SELECT COUNT(*) FROM usuarios WHERE usuario = ? AND password = ?";
@@ -59,9 +56,6 @@ public class LoginController implements Initializable {
             if (rs.getInt(1) > 0) {
             	Sesion.setUsuario(username);
             	try {
-            		MenuPanelController menuPanel = new MenuPanelController();
-                	menuPanel.cargarInterfaz("/interfaz/MenuPanel.fxml", "GEAT - MENU PANEL");
-                	
             		ApartamentoController apartamento = new ApartamentoController();
             		apartamento.cargarInterfaz("/interfaz/Apartamentos.fxml", "GEAT - MIS APARTAMENTOS");
 	                
@@ -79,6 +73,7 @@ public class LoginController implements Initializable {
                 alert.setHeaderText(null);
                 alert.setContentText("Credenciales inválidas. Por favor, inténtalo de nuevo.");
                 alert.showAndWait();
+                passwordField.clear();
             }
         } catch (SQLException e) {
             e.printStackTrace();

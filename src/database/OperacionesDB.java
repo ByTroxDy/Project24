@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
+import model.Sesion;
+
 public class OperacionesDB {
 
     private Connection conn;
@@ -20,7 +22,8 @@ public class OperacionesDB {
     
     public double obtenerTotalIngresos() throws SQLException {
         double totalIngresos = 0.0;
-        try (PreparedStatement stmtIngresos = conn.prepareStatement("SELECT SUM(TotalFactura) FROM ingresos")) {
+        try (PreparedStatement stmtIngresos = conn.prepareStatement("SELECT SUM(TotalFactura) FROM ingresos WHERE idApartamento = ?")) {
+        	stmtIngresos.setInt(1, Sesion.getIdApartamento());
             ResultSet rsIngresos = stmtIngresos.executeQuery();
             if (rsIngresos.next()) {
                 totalIngresos = rsIngresos.getDouble(1);
@@ -31,7 +34,8 @@ public class OperacionesDB {
 
     public double obtenerTotalGastos() throws SQLException {
         double totalGastos = 0.0;
-        try (PreparedStatement stmtGastos = conn.prepareStatement("SELECT SUM(TotalGasto) FROM gastos")) {
+        try (PreparedStatement stmtGastos = conn.prepareStatement("SELECT SUM(TotalGasto) FROM gastos WHERE idApartamento = ?")) {
+        	stmtGastos.setInt(1, Sesion.getIdApartamento());
             ResultSet rsGastos = stmtGastos.executeQuery();
             if (rsGastos.next()) {
                 totalGastos = rsGastos.getDouble(1);
@@ -49,20 +53,22 @@ public class OperacionesDB {
         double totalIVAIngresos = 0.0;
         double totalIVAGastos = 0.0;
         
-        String sqlIngresos = "SELECT SUM(totalIVA) FROM ingresos WHERE fechaEntrada BETWEEN ? AND ?";
+        String sqlIngresos = "SELECT SUM(totalIVA) FROM ingresos WHERE idApartamento = ? AND fechaEntrada BETWEEN ? AND ?";
         try (PreparedStatement statement = conn.prepareStatement(sqlIngresos)) {
-            statement.setDate(1, java.sql.Date.valueOf(primerDiaTrimestre));
-            statement.setDate(2, java.sql.Date.valueOf(ultimoDiaTrimestre));
+        	statement.setInt(1, Sesion.getIdApartamento());
+            statement.setDate(2, java.sql.Date.valueOf(primerDiaTrimestre));
+            statement.setDate(3, java.sql.Date.valueOf(ultimoDiaTrimestre));
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 totalIVAIngresos = resultSet.getDouble(1);
             }
         }
 
-        String sqlGastos = "SELECT SUM(totalIVA) FROM gastos WHERE fecha BETWEEN ? AND ?";
+        String sqlGastos = "SELECT SUM(totalIVA) FROM gastos WHERE idApartamento = ? AND fecha BETWEEN ? AND ?";
         try (PreparedStatement statement = conn.prepareStatement(sqlGastos)) {
-            statement.setDate(1, java.sql.Date.valueOf(primerDiaTrimestre));
-            statement.setDate(2, java.sql.Date.valueOf(ultimoDiaTrimestre));
+        	statement.setInt(1, Sesion.getIdApartamento());
+            statement.setDate(2, java.sql.Date.valueOf(primerDiaTrimestre));
+            statement.setDate(3, java.sql.Date.valueOf(ultimoDiaTrimestre));
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 totalIVAGastos = resultSet.getDouble(1);
